@@ -1,4 +1,5 @@
 import argparse
+import sys
 
 from uithub_expander.parser import UithubExpander
 
@@ -30,8 +31,12 @@ def main() -> None:
     args = parser.parse_args()
 
     # 抽出処理を実行
-    extractor = UithubExpander(args.input_file, args.output_dir)  # pyright:ignore[reportAny]
-    extractor.extract()
+    try:
+        extractor = UithubExpander(args.input_file, args.output_dir)  # pyright:ignore[reportAny]
+        extractor.extract()
+    except (FileNotFoundError, UnicodeDecodeError, ValueError) as e:
+        print(f"Error: {e}")  # noqa: T201
+        sys.exit(1)
 
 
 if __name__ == "__main__":

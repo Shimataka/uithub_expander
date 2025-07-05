@@ -12,7 +12,7 @@ uithub.comはGitHubリポジトリの構造をテキスト形式で出力する�
 
 ```bash
 # 開発版をインストール
-git clone https://github.com/your-username/uithub_expander.git
+git clone https://github.com/Shimataka/uithub_expander.git
 cd uithub_expander
 pip install -e .
 

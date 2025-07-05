@@ -155,7 +155,7 @@ class UithubExpander:
 
             for line in lines:
                 # 行番号パターン (例: " 1 | ") を除去
-                line_match = re.match(r"^\s*\d+\s*\|\s*(.*)", line)
+                line_match = re.match(r"^\s*\d+\s*\|\s?(\s*.*)", line)
                 if line_match:
                     cleaned_lines.append(line_match.group(1))
                 elif line.strip():  # 空行でない場合はそのまま追加

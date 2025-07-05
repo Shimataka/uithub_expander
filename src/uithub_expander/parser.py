@@ -193,58 +193,6 @@ class UithubExpander:
             if in_tree and line.startswith(("├──", "└──", "│", "    ")):
                 self.tree_structure.append(line)
 
-    def _parse_tree_paths(self) -> list[str]:
-        """ツリー構造から実際のパスを解析
-
-        ツリー構造の行から、実際のファイルシステム上のパスを構築します。
-
-        Returns:
-            パスのリスト。各パスは文字列形式 (例: "src/main.py", "docs/README.md")
-
-        Notes:
-            - インデントレベルに基づいてパス階層を構築します
-            - 4文字のインデントまたは記号の組み合わせで1レベルとして計算します
-            - ディレクトリ (拡張子がない、またはドットで始まる) はパススタックに追加されます
-            - ファイルはパススタックを使用して完全なパスを構築します
-            - 結果は階層順にソートされません (抽出順)
-        """
-        paths: list[str] = []
-        path_stack: list[str] = []
-
-        for line in self.tree_structure:
-            # インデントレベルを計算
-            indent_match = re.match(r"^(\s*(?:├──|└──|│\s+))", line)
-            if not indent_match:
-                continue
-
-            indent_str = indent_match.group(1)
-            # インデントレベルの計算 (4文字または記号の組み合わせで1レベル)
-            indent_level = (
-                len(
-                    indent_str.replace("├──", "").replace("└──", "").replace("│", ""),
-                )
-                // 4
-            )
-
-            # ファイル/ディレクトリ名を抽出
-            name_match = re.search(r"(?:├──|└──)\s*(.+)$", line)
-            if name_match:
-                name = name_match.group(1).strip()
-
-                # スタックを調整
-                while len(path_stack) > indent_level:
-                    _ = path_stack.pop()
-
-                # 現在のパスを構築
-                current_path = "/".join([*path_stack, name])
-                paths.append(current_path)
-
-                # ディレクトリの場合はスタックに追加
-                if "." not in name or name.startswith("."):
-                    path_stack.append(name)
-
-        return paths
-
     def create_directory_structure(self) -> None:
         """ディレクトリ構造を作成
 
@@ -265,11 +213,8 @@ class UithubExpander:
         # 出力ディレクトリを作成
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-        # ツリー構造からパスを取得
-        paths = self._parse_tree_paths()
-
         # 全てのファイルとディレクトリのパスを収集
-        all_paths = set(paths)
+        all_paths: set[str] = set()
 
         # ファイル内容に含まれるパスも追加
         for file_path in self.files_content:

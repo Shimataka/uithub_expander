@@ -60,8 +60,9 @@ class UithubExpander:
 
         _output_dir = Path(output_dir)
         if not _output_dir.exists():
-            msg = f"Not found output directory: '{output_dir}'"
-            raise FileNotFoundError(msg)
+            print(f"Warning: Output directory not found. '{output_dir}' will be created.")  # noqa: T201
+        else:
+            print(f"Warning: Overwrite the output directory: '{output_dir}'")  # noqa: T201
 
         self.input_file: Path = _input_file
         self.output_dir: Path = _output_dir

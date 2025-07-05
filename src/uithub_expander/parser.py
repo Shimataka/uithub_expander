@@ -16,8 +16,15 @@ Notes:
     - ファイル内容は行番号付きの形式から自動的にクリーンアップされます
 """
 
+import logging
 import re
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
 
 
 class UithubExpander:
@@ -67,9 +74,11 @@ class UithubExpander:
 
         _output_dir = Path(output_dir)
         if not _output_dir.exists():
-            print(f"Warning: Output directory not found. '{output_dir}' will be created.")  # noqa: T201
+            msg = f"Output directory not found. '{output_dir}' will be created."
+            logger.warning(msg)
         else:
-            print(f"Warning: Overwrite the output directory: '{output_dir}'")  # noqa: T201
+            msg = f"Overwrite the output directory: '{output_dir}'"
+            logger.warning(msg)
 
         self.input_file: Path = _input_file
         self.output_dir: Path = _output_dir
@@ -280,12 +289,14 @@ class UithubExpander:
             # セキュリティチェックを行う (トラバーサル攻撃対策)
             try:
                 if not full_path.resolve().is_relative_to(self.output_dir.resolve()):
-                    print(f"Skipping path: {full_path}")  # noqa: T201
+                    msg = f"Skipping path: {full_path}"
+                    logger.warning(msg)
                     continue
             except FileNotFoundError:
                 pass
-            except Exception as e:  # noqa: BLE001
-                print(f"Error: {e}")  # noqa: T201
+            except Exception as e:
+                msg = f"Error: {e}"
+                logger.exception(msg)
                 continue
 
             # ディレクトリかファイルかを判定
@@ -295,13 +306,16 @@ class UithubExpander:
                 try:
                     with full_path.open("w", encoding="utf-8") as f:
                         _ = f.write(self.files_content[path])
-                    print(f"Created file: {full_path}")  # noqa: T201
+                    msg = f"Created file: {full_path}"
+                    logger.info(msg)
                 except OSError as e:
-                    print(f"Failed to create file: {full_path}: {e}")  # noqa: T201
+                    msg = f"Failed to create file: {full_path}: {e}"
+                    logger.exception(msg)
             else:
                 # ディレクトリの場合 (ファイル内容に含まれていないパス)
                 full_path.mkdir(parents=True, exist_ok=True)
-                print(f"Created directory: {full_path}")  # noqa: T201
+                msg = f"Created directory: {full_path}"
+                logger.info(msg)
 
     def extract(self) -> None:
         """メイン処理: ファイルを解析してディレクトリ構造を展開
@@ -321,24 +335,30 @@ class UithubExpander:
             - 処理は段階的に実行され、各段階でエラーハンドリングが行われます
             - 成功時は作成されたファイル数が表示されます
         """
-        print(f"Input file: {self.input_file}")  # noqa: T201
-        print(f"Output directory: {self.output_dir}")  # noqa: T201
-        print("-" * 50)  # noqa: T201
+        msg = f"Input file: {self.input_file}"
+        logger.info(msg)
+        msg = f"Output directory: {self.output_dir}"
+        logger.info(msg)
+        logger.info("-" * 50)
 
         try:
             # ファイルを解析
             self.parse_file()
 
-            print(f"Detected files: {len(self.files_content)}")  # noqa: T201
-            print(f"Tree structure lines: {len(self.tree_structure)}")  # noqa: T201
+            msg = f"Detected files: {len(self.files_content)}"
+            logger.info(msg)
+            msg = f"Tree structure lines: {len(self.tree_structure)}"
+            logger.info(msg)
 
             # ディレクトリ構造を作成
             self.create_directory_structure()
 
-            print("-" * 50)  # noqa: T201
-            print("Expansion completed!")  # noqa: T201
-            print(f"Created files: {len(self.files_content)}")  # noqa: T201
+            msg = "Expansion completed!"
+            logger.info(msg)
+            msg = f"Created files: {len(self.files_content)}"
+            logger.info(msg)
 
         except Exception as e:
-            print(f"Error: {e}")  # noqa: T201
+            msg = f"Error: {e}"
+            logger.exception(msg)
             raise

@@ -17,7 +17,7 @@ cd uithub_expander
 pip install -e .
 
 # または直接実行
-python -m uithub_expander
+python -m uithub_expander <input_file>
 ```
 
 ## 🛠️ 使用方法

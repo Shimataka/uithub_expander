@@ -32,6 +32,12 @@ class UithubExpander:
         files_content (dict[str, str]): ファイルパスと内容のマッピング
         tree_structure (list[str]): ツリー構造の行のリスト
 
+    Raises:
+        FileNotFoundError: 入力ファイルまたは出力ディレクトリが存在しない場合
+        UnicodeDecodeError: ファイルのエンコーディングがUTF-8でない場合
+        ValueError: ファイル内容のパターンが見つからない場合
+        Exception: その他の処理中に発生したエラー
+
     Notes:
         - ファイル内容は行番号付きの形式から自動的にクリーンアップされます
         - ツリー構造はASCII文字 (├──、└──、│) を使用した形式を解析します

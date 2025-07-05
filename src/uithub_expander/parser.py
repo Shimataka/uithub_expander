@@ -273,6 +273,17 @@ class UithubExpander:
         for path in sorted_paths:
             full_path = self.output_dir / path
 
+            # セキュリティチェックを行う (トラバーサル攻撃対策)
+            try:
+                if not full_path.resolve().is_relative_to(self.output_dir.resolve()):
+                    print(f"Skipping path: {full_path}")  # noqa: T201
+                    continue
+            except FileNotFoundError:
+                pass
+            except Exception as e:  # noqa: BLE001
+                print(f"Error: {e}")  # noqa: T201
+                continue
+
             # ディレクトリかファイルかを判定
             if path in self.files_content:
                 # ファイルの場合

@@ -34,7 +34,7 @@ def main() -> None:
     try:
         extractor = UithubExpander(args.input_file, args.output_dir)  # pyright:ignore[reportAny]
         extractor.extract()
-    except (FileNotFoundError, UnicodeDecodeError, ValueError) as e:
+    except (FileNotFoundError, UnicodeDecodeError, ValueError, OSError) as e:
         print(f"Error: {e}")  # noqa: T201
         sys.exit(1)
 

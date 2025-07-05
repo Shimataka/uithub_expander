@@ -34,6 +34,7 @@ class UithubExpander:
 
     Raises:
         FileNotFoundError: 入力ファイルまたは出力ディレクトリが存在しない場合
+        OSError: ファイル作成に失敗した場合
         UnicodeDecodeError: ファイルのエンコーディングがUTF-8でない場合
         ValueError: ファイル内容のパターンが見つからない場合
         Exception: その他の処理中に発生したエラー
@@ -241,6 +242,9 @@ class UithubExpander:
         解析されたファイル内容とツリー構造に基づいて、
         実際のファイルシステム上にディレクトリとファイルを作成します。
 
+        Raises:
+            OSError: ファイル作成に失敗した場合
+
         Notes:
             - 出力ディレクトリが存在しない場合は自動的に作成されます
             - ディレクトリはファイルより先に作成されます (パス順ソート)
@@ -292,7 +296,7 @@ class UithubExpander:
                     with full_path.open("w", encoding="utf-8") as f:
                         _ = f.write(self.files_content[path])
                     print(f"Created file: {full_path}")  # noqa: T201
-                except Exception as e:  # noqa: BLE001
+                except OSError as e:
                     print(f"Failed to create file: {full_path}: {e}")  # noqa: T201
             else:
                 # ディレクトリの場合 (ファイル内容に含まれていないパス)
